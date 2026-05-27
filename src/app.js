@@ -37,11 +37,10 @@ const db = require('./config/database');
 
 async function testDB() {
     try {
-        const conn = await db.getConnection();
-        console.log("Database connesso!");
-        conn.release();
+        const res = await db.query('SELECT NOW()');
+        console.log("DB connesso:", res.rows[0]);
     } catch (err) {
-        console.error("Errore connessione DB:", err.message);
+        console.error("Errore DB:", err.message);
     }
 }
 
