@@ -43,12 +43,20 @@ exports.createListing = async (req, res) => {
 exports.getListings = async (req, res) => {
     try {
         const { rows } = await db.query(`
-            SELECT ml.*, c.name, c.rarity
-            FROM marketplace_listings ml
-            JOIN card_instances ci ON ml.card_instance_id = ci.id
-            JOIN cards c ON ci.card_id = c.id
-            WHERE ml.status = 'active'
-        `);
+    	    SELECT 
+        	ml.id,
+        	ml.price,
+        	ml.status,
+        	c.name,
+        	c.rarity,
+        	c.image_url,
+        	c.type,
+        	ci.level
+    	    FROM marketplace_listings ml
+    	    JOIN card_instances ci ON ml.card_instance_id = ci.id
+    	    JOIN cards c ON ci.card_id = c.id
+    	    WHERE ml.status = 'active'
+	`);
 
         res.json(rows);
 
