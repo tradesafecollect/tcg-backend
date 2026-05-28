@@ -21,7 +21,7 @@ const cardRoutes = require('./routes/cardRoutes');
 app.use('/api/auth', authRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/market', marketRoutes);
-app.use('/api/cards', cardRoutes);
+app.use('/api', cardRoutes);
 
 // ======================
 // TEST ROUTE

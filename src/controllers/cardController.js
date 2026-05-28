@@ -75,3 +75,26 @@ exports.getMyCollectionCards = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+exports.getCard = async (req, res) => {
+    const { id } = req.params;
+
+    const { rows } = await db.query(`
+        SELECT 
+            c.*,
+            (
+                SELECT price 
+                FROM card_sales_history 
+                WHERE card_id = c.id 
+                ORDER BY created_at DESC 
+                LIMIT 1
+            ) as last_price
+        FROM cards c
+        WHERE c.id = $1
+    `, [id]);
+
+    res.json(rows[0]);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
