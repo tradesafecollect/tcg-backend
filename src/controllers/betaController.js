@@ -37,6 +37,15 @@ exports.createBetaRequest = async (req, res) => {
             anni_collezionismo
         ]);
 
+	await sendBetaNotification({
+    		username,
+    		email,
+    		nome,
+    		cognome,
+    		citta,
+    		anni_collezionismo
+	});
+
         res.json({ message: "Request salvata" });
 
     } catch (err) {

@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
 exports.sendBetaNotification = async (data) => {
     await transporter.sendMail({
         from: process.env.EMAIL_USER,
-        to: process.env.EMAIL_USER,
+        to: process.env.ADMIN_EMAIL,
         subject: 'Nuova richiesta beta',
         html: `
             <h2>Nuova richiesta beta</h2>
