@@ -17,11 +17,14 @@ const authRoutes = require('./routes/authRoutes');
 const walletRoutes = require('./routes/walletRoutes');
 const marketRoutes = require('./routes/marketRoutes');
 const cardRoutes = require('./routes/cardRoutes');
+const betaRoutes = require('./routes/betaRoutes');
+
 
 app.use('/api/auth', authRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/market', marketRoutes);
 app.use('/api', cardRoutes);
+app.use('/api', betaRoutes);
 
 // ======================
 // TEST ROUTE
