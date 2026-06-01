@@ -1,3 +1,6 @@
+console.log("RESEND:", process.env.RESEND_API_KEY);
+console.log("ADMIN:", process.env.ADMIN_EMAIL);
+
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
