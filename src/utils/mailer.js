@@ -1,19 +1,20 @@
 const { Resend } = require('resend');
+
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 exports.sendBetaNotification = async (data) => {
     try {
         const result = await resend.emails.send({
-            from: 'onboarding@resend.dev',
+            from: 'TCG <onboarding@resend.dev>',
             to: process.env.ADMIN_EMAIL,
             subject: 'Nuova richiesta beta',
             html: `<p>${data.email}</p>`
         });
 
-        console.log("✅ RESEND OK:", result);
+        console.log("✅ RESEND RISPOSTA:", result);
 
     } catch (err) {
-        console.error("❌ ERRORE RESEND:", err?.message || err);
-        throw err; // 👈 importante per vedere errore nel frontend/log
+        console.error("❌ ERRORE RESEND:", err);
+        throw err;
     }
 };
