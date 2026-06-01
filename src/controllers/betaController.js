@@ -3,6 +3,11 @@ const bcrypt = require('bcrypt');
 
 exports.createBetaRequest = async (req, res) => {
     console.log("🔥 RICHIESTA ARRIVATA AL BACKEND");
+
+console.log("📩 sto per inviare email...");
+await sendBetaNotification(data);
+console.log("✅ funzione mail chiamata");
+
     try {
         const {
             username,
