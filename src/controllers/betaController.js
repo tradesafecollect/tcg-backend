@@ -2,6 +2,7 @@ const db = require('../config/database');
 const bcrypt = require('bcrypt');
 
 exports.createBetaRequest = async (req, res) => {
+    console.log("🔥 RICHIESTA ARRIVATA AL BACKEND");
     try {
         const {
             username,
