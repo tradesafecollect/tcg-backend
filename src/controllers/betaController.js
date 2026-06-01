@@ -1,12 +1,9 @@
 const db = require('../config/database');
 const bcrypt = require('bcrypt');
+const { sendBetaNotification } = require('../utils/mailer');
 
 exports.createBetaRequest = async (req, res) => {
     console.log("🔥 RICHIESTA ARRIVATA AL BACKEND");
-
-console.log("📩 sto per inviare email...");
-await sendBetaNotification(data);
-console.log("✅ funzione mail chiamata");
 
     try {
         const {
@@ -43,18 +40,23 @@ console.log("✅ funzione mail chiamata");
             anni_collezionismo
         ]);
 
-	await sendBetaNotification({
-    		username,
-    		email,
-    		nome,
-    		cognome,
-    		citta,
-    		anni_collezionismo
-	});
+        console.log("📩 sto per inviare email...");
+
+        await sendBetaNotification({
+            username,
+            email,
+            nome,
+            cognome,
+            citta,
+            anni_collezionismo
+        });
+
+        console.log("✅ EMAIL INVIATA");
 
         res.json({ message: "Request salvata" });
 
     } catch (err) {
+        console.error("❌ ERRORE BACKEND:", err);
         res.status(500).json({ error: err.message });
     }
 };
