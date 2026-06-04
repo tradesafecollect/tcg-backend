@@ -140,3 +140,22 @@ exports.approveBetaRequest = async (req, res) => {
         });
     }
 };
+
+exports.getBetaRequests = async (req, res) => {
+    try {
+
+        const requests = await db.query(`
+            SELECT *
+            FROM beta_requests
+            WHERE status = 'pending'
+            ORDER BY created_at DESC
+        `);
+
+        res.json(requests.rows);
+
+    } catch (err) {
+        res.status(500).json({
+            error: err.message
+        });
+    }
+};
