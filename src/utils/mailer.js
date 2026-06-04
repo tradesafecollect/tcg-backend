@@ -28,8 +28,6 @@ exports.sendBetaNotification = async (data) => {
 
     } catch (err) {
         console.error("❌ ERRORE RESEND:", err);
-        console.error("❌ MESSAGE:", err.message);
-        console.error("❌ FULL:", JSON.stringify(err, null, 2));
         throw err;
     }
 };
