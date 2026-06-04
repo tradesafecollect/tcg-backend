@@ -43,12 +43,16 @@ exports.createBetaRequest = async (req, res) => {
         console.log("📩 sto per inviare email...");
 
         await sendBetaNotification({
-            username,
-            email,
-            nome,
-            cognome,
-            citta,
-            anni_collezionismo
+                username,
+    		email,
+    		nome,
+    		cognome,
+    		indirizzo1,
+    		indirizzo2,
+    		citta,
+    		cap,
+   		referral,
+   		anni_collezionismo
         });
 
         console.log("✅ EMAIL INVIATA");
