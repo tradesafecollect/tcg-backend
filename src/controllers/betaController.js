@@ -1,6 +1,9 @@
 const db = require('../config/database');
 const bcrypt = require('bcrypt');
-const { sendBetaNotification } = require('../utils/mailer');
+const { 
+	sendBetaNotification,
+    	sendUserConfirmation 
+} = require('../utils/mailer');
 
 exports.createBetaRequest = async (req, res) => {
     console.log("🔥 RICHIESTA ARRIVATA AL BACKEND");
@@ -55,7 +58,12 @@ exports.createBetaRequest = async (req, res) => {
    		anni_collezionismo
         });
 
-        console.log("✅ EMAIL INVIATA");
+	await sendUserConfirmation(
+    		email,
+    		username
+	);
+        
+	console.log("✅ EMAIL INVIATA");
 
         res.json({ message: "Request salvata" });
 
