@@ -3,8 +3,14 @@ const router = express.Router();
 
 const {
     createBetaRequest,
-    approveBetaRequest
-    getBetaRequests
+    approveBetaRequest,
+    getBetaRequests,
+    getPendingRequests,
+    getApprovedRequests,
+    getRejectedRequests,
+    acceptToWaitlist,
+    inviteUser,
+    rejectBetaRequest
 } = require('../controllers/betaController');
 
 router.post('/beta-request', createBetaRequest);
@@ -12,11 +18,36 @@ router.post('/beta-request', createBetaRequest);
 router.post(
     '/beta/approve/:id',
     approveBetaRequest
+);
 
 router.get(
     '/beta/pending',
-    getBetaRequests
+    getPendingRequests
+);
 
+router.get(
+    '/beta/approved',
+    getApprovedRequests
+);
+
+router.get(
+    '/beta/rejected',
+    getRejectedRequests
+);
+
+router.post(
+    '/beta/accept/:id',
+    acceptToWaitlist
+);
+
+router.post(
+    '/beta/invite/:id',
+    inviteUser
+);
+
+router.post(
+    '/beta/reject/:id',
+    rejectBetaRequest
 );
 
 module.exports = router;

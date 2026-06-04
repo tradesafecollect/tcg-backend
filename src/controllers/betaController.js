@@ -159,3 +159,195 @@ exports.getBetaRequests = async (req, res) => {
         });
     }
 };
+
+exports.getPendingRequests = async (req, res) => {
+
+    const requests = await db.query(`
+        SELECT *
+        FROM beta_requests
+        WHERE status = 'pending'
+        ORDER BY created_at DESC
+    `);
+
+    res.json(requests.rows);
+};
+
+exports.getApprovedRequests = async (req, res) => {
+
+    const requests = await db.query(`
+        SELECT *
+        FROM beta_requests
+        WHERE status = 'approved'
+        ORDER BY approved_at DESC
+    `);
+
+    res.json(requests.rows);
+};
+
+exports.getRejectedRequests = async (req, res) => {
+
+    const requests = await db.query(`
+        SELECT *
+        FROM beta_requests
+        WHERE status = 'rejected'
+        ORDER BY created_at DESC
+    `);
+
+    res.json(requests.rows);
+};
+
+exports.rejectBetaRequest = async (req, res) => {
+
+    const { id } = req.params;
+
+    await db.query(`
+        UPDATE beta_requests
+        SET status='rejected'
+        WHERE id=$1
+    `,[id]);
+
+    res.json({
+        message:"Richiesta rifiutata"
+    });
+
+};
+
+exports.acceptToWaitlist = async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+        const request = await db.query(`
+            SELECT *
+            FROM beta_requests
+            WHERE id = $1
+        `,[id]);
+
+        if(request.rows.length === 0){
+            return res.status(404).json({
+                error:"Richiesta non trovata"
+            });
+        }
+
+        const user = request.rows[0];
+
+        const positionResult = await db.query(`
+            SELECT COUNT(*)
+            FROM beta_requests
+            WHERE status = 'accepted'
+        `);
+
+        const position =
+            parseInt(positionResult.rows[0].count) + 1;
+
+        await db.query(`
+            UPDATE beta_requests
+            SET
+                status='accepted',
+                waitlist_position=$1
+            WHERE id=$2
+        `,[position,id]);
+
+        res.json({
+            message:"Utente inserito in waiting list",
+            position
+        });
+
+    } catch(err){
+        res.status(500).json({
+            error:err.message
+        });
+    }
+
+};
+
+exports.inviteUser = async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+        const request = await db.query(`
+            SELECT *
+            FROM beta_requests
+            WHERE id=$1
+        `,[id]);
+
+        if(request.rows.length === 0){
+            return res.status(404).json({
+                error:"Utente non trovato"
+            });
+        }
+
+        const user = request.rows[0];
+
+        const exists = await db.query(`
+            SELECT id
+            FROM users
+            WHERE email=$1
+        `,[user.email]);
+
+        if(exists.rows.length === 0){
+
+            await db.query(`
+                INSERT INTO users
+                (
+                    username,
+                    email,
+                    password,
+                    role
+                )
+                VALUES($1,$2,$3,$4)
+            `,[
+                user.username,
+                user.email,
+                user.password,
+                'user'
+            ]);
+
+        }
+
+        await db.query(`
+            UPDATE beta_requests
+            SET
+                status='invited',
+                approved_at=NOW()
+            WHERE id=$1
+        `,[id]);
+
+        res.json({
+            message:"Utente invitato"
+        });
+
+    } catch(err){
+        res.status(500).json({
+            error:err.message
+        });
+    }
+
+};
+
+exports.rejectBetaRequest = async (req,res)=>{
+
+    try{
+
+        const { id } = req.params;
+
+        await db.query(`
+            UPDATE beta_requests
+            SET status='rejected'
+            WHERE id=$1
+        `,[id]);
+
+        res.json({
+            message:"Richiesta rifiutata"
+        });
+
+    }catch(err){
+        res.status(500).json({
+            error:err.message
+        });
+    }
+
+};
