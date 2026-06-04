@@ -72,3 +72,71 @@ exports.createBetaRequest = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+exports.approveBetaRequest = async (req, res) => {
+    try {
+
+        const { id } = req.params;
+
+        const request = await db.query(
+            `SELECT * FROM beta_requests WHERE id = $1`,
+            [id]
+        );
+
+        if (request.rows.length === 0) {
+            return res.status(404).json({
+                error: "Richiesta non trovata"
+            });
+        }
+
+        const user = request.rows[0];
+
+        // Controlla se esiste già
+        const existingUser = await db.query(
+            `SELECT id FROM users WHERE email = $1`,
+            [user.email]
+        );
+
+        if (existingUser.rows.length > 0) {
+            return res.status(400).json({
+                error: "Utente già presente"
+            });
+        }
+
+        // Crea utente
+        await db.query(`
+            INSERT INTO users
+            (
+                username,
+                email,
+                password,
+                role
+            )
+            VALUES ($1,$2,$3,$4)
+        `, [
+            user.username,
+            user.email,
+            user.password,
+            'user'
+        ]);
+
+        // Aggiorna richiesta
+        await db.query(`
+            UPDATE beta_requests
+            SET
+                status = 'approved',
+                approved_at = NOW()
+            WHERE id = $1
+        `, [id]);
+
+        res.json({
+            message: "Utente approvato con successo"
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            error: err.message
+        });
+    }
+};
