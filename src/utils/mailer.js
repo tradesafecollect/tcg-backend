@@ -33,20 +33,23 @@ exports.sendBetaNotification = async (data) => {
 };
 
 exports.sendUserConfirmation = async (email, username) => {
-    const result = await resend.emails.send({
-        from: 'onboarding@resend.dev',
-        to: email,
-        subject: 'Richiesta Beta Ricevuta',
-        html: `
-            <h2>Ciao ${username}!</h2>
+    try {
+        console.log("📧 Invio email utente a:", email);
 
-            <p>Abbiamo ricevuto la tua richiesta di accesso alla beta di DMS - Digital Master Sets.</p>
+        const result = await resend.emails.send({
+            from: 'onboarding@resend.dev',
+            to: email,
+            subject: 'Richiesta Beta Ricevuta',
+            html: `
+                <h2>Ciao ${username}!</h2>
+                <p>Abbiamo ricevuto la tua richiesta di accesso alla beta.</p>
+            `
+        });
 
-            <p>Il nostro team la esaminerà e ti contatterà appena possibile.</p>
+        console.log("✅ EMAIL UTENTE:", result);
 
-            <p>Grazie per l'interesse!</p>
-        `
-    });
-
-    console.log("✅ EMAIL UTENTE:", result);
+    } catch (err) {
+        console.error("❌ ERRORE EMAIL UTENTE:", err);
+        throw err;
+    }
 };
