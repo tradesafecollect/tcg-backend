@@ -13,4 +13,9 @@ router.get('/history/:cardId', cardController.getCardHistory);
 
 router.get("/cards/:id", getCard);
 
+router.post(
+    '/cards',
+    createCard
+);
+
 module.exports = router;

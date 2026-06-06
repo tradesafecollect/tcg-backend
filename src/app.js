@@ -23,13 +23,14 @@ const walletRoutes = require('./routes/walletRoutes');
 const marketRoutes = require('./routes/marketRoutes');
 const cardRoutes = require('./routes/cardRoutes');
 const betaRoutes = require('./routes/betaRoutes');
-
+const tournamentRoutes = require('./routes/tournamentRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/market', marketRoutes);
 app.use('/api', cardRoutes);
 app.use('/api', betaRoutes);
+app.use('/api', tournamentRoutes);
 
 // ======================
 // TEST ROUTE

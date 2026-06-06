@@ -100,3 +100,67 @@ exports.getCard = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+exports.createCard = async (req,res)=>{
+
+    try{
+
+        const card = req.body;
+
+        await db.query(`
+            INSERT INTO cards
+            (
+                name,
+                set_name,
+                rarity,
+                attack,
+                defense,
+                hp,
+                image_url,
+                speed,
+                season,
+                fusion_level,
+                serial_number,
+                dms_border_grade,
+                dms_surface_grade,
+                dms_corner_grade,
+                dms_total_grading,
+                population
+            )
+            VALUES
+            (
+                $1,$2,$3,$4,$5,$6,$7,
+                $8,$9,$10,$11,$12,
+                $13,$14,$15,$16
+            )
+        `,[
+            card.name,
+            card.set_name,
+            card.rarity,
+            card.attack,
+            card.defense,
+            card.hp,
+            card.image_url,
+            card.speed,
+            card.season,
+            card.fusion_level,
+            card.serial_number,
+            card.dms_border_grade,
+            card.dms_surface_grade,
+            card.dms_corner_grade,
+            card.dms_total_grading,
+            card.population
+        ]);
+
+        res.json({
+            message:"Carta creata"
+        });
+
+    }catch(err){
+
+        res.status(500).json({
+            error:err.message
+        });
+    }
+
+};
