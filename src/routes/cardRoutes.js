@@ -5,6 +5,10 @@ const cardController = require('../controllers/cardController');
 const authMiddleware = require('../middleware/authMiddleware');
 const { getCard } = require('../controllers/cardController');
 
+const {
+    createCard
+} = require('../controllers/cardController');
+
 // 🎴 inventory utente
 router.get('/my-cards', authMiddleware, cardController.getMyCards);
 router.get('/my-collection', authMiddleware, cardController.getMyCollectionCards);

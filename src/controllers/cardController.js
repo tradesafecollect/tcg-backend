@@ -101,15 +101,33 @@ exports.getCard = async (req, res) => {
     }
 };
 
-exports.createCard = async (req,res)=>{
+exports.createCard = async (req, res) => {
 
-    try{
+    try {
 
-        const card = req.body;
+        const {
+            name,
+            set_name,
+            rarity,
+            attack,
+            defense,
+            hp,
+            image_url,
+            speed,
+            season,
+            fusion_level,
+            serial_number,
+            dms_border_grade,
+            dms_surface_grade,
+            dms_corner_grade,
+            dms_total_grading,
+            population,
+            dms,
+            element
+        } = req.body;
 
         await db.query(`
-            INSERT INTO cards
-            (
+            INSERT INTO cards (
                 name,
                 set_name,
                 rarity,
@@ -125,42 +143,46 @@ exports.createCard = async (req,res)=>{
                 dms_surface_grade,
                 dms_corner_grade,
                 dms_total_grading,
-                population
+                population,
+                dms,
+                element
             )
-            VALUES
-            (
-                $1,$2,$3,$4,$5,$6,$7,
-                $8,$9,$10,$11,$12,
-                $13,$14,$15,$16
+            VALUES (
+                $1,$2,$3,$4,$5,$6,$7,$8,$9,
+                $10,$11,$12,$13,$14,$15,
+                $16,$17,$18
             )
-        `,[
-            card.name,
-            card.set_name,
-            card.rarity,
-            card.attack,
-            card.defense,
-            card.hp,
-            card.image_url,
-            card.speed,
-            card.season,
-            card.fusion_level,
-            card.serial_number,
-            card.dms_border_grade,
-            card.dms_surface_grade,
-            card.dms_corner_grade,
-            card.dms_total_grading,
-            card.population
+        `, [
+            name,
+            set_name,
+            rarity,
+            attack,
+            defense,
+            hp,
+            image_url,
+            speed,
+            season,
+            fusion_level,
+            serial_number,
+            dms_border_grade,
+            dms_surface_grade,
+            dms_corner_grade,
+            dms_total_grading,
+            population,
+            dms || false,
+            element
         ]);
 
         res.json({
-            message:"Carta creata"
+            message: "Carta creata con successo"
         });
 
-    }catch(err){
+    } catch (err) {
+
+        console.error("❌ ERRORE CREATE CARD:", err);
 
         res.status(500).json({
-            error:err.message
+            error: err.message
         });
     }
-
 };
