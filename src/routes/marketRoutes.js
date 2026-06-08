@@ -11,16 +11,23 @@ const authMiddleware = require('../middleware/authMiddleware');
 // ======================
 
 // crea listing
-router.post('/list', authMiddleware, marketController.createListing);
+router.post(
+    '/list',
+    authMiddleware,
+    marketController.createListing
+);
 
-// lista marketplace (può anche essere pubblica)
-router.get('/all', marketController.getListings);
+// lista marketplace
+router.get(
+    '/all',
+    marketController.getListings
+);
 
 // compra carta
-router.post('/buy', authMiddleware, marketController.buyCard);
-
 router.post(
-    '/marketplace/list',
-    createListing
+    '/buy',
+    authMiddleware,
+    marketController.buyCard
 );
+
 module.exports = router;
