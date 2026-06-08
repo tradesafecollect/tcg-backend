@@ -186,3 +186,58 @@ exports.createCard = async (req, res) => {
         });
     }
 };
+
+exports.getUnassignedCards = async (req, res) => {
+
+    try {
+
+        const result = await db.query(`
+            SELECT c.*
+            FROM cards c
+            LEFT JOIN user_cards uc
+                ON c.id = uc.card_id
+            WHERE uc.id IS NULL
+            ORDER BY c.created_at DESC
+        `);
+
+        res.json(result.rows);
+
+    } catch(err) {
+
+        res.status(500).json({
+            error: err.message
+        });
+    }
+};
+
+exports.assignCardToUser = async (req, res) => {
+
+    try {
+
+        const {
+            card_id,
+            user_id
+        } = req.body;
+
+        await db.query(`
+            INSERT INTO user_cards (
+                user_id,
+                card_id
+            )
+            VALUES ($1,$2)
+        `,[
+            user_id,
+            card_id
+        ]);
+
+        res.json({
+            message: 'Carta assegnata'
+        });
+
+    } catch(err){
+
+        res.status(500).json({
+            error: err.message
+        });
+    }
+};

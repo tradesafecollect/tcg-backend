@@ -22,4 +22,14 @@ router.post(
     createCard
 );
 
+router.get(
+    '/cards/unassigned',
+    getUnassignedCards
+);
+
+router.post(
+    '/cards/assign',
+    assignCardToUser
+);
+
 module.exports = router;

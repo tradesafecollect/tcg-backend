@@ -19,4 +19,8 @@ router.get('/all', marketController.getListings);
 // compra carta
 router.post('/buy', authMiddleware, marketController.buyCard);
 
+router.post(
+    '/marketplace/list',
+    createListing
+);
 module.exports = router;

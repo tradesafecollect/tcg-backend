@@ -191,3 +191,39 @@ exports.buyCard = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+exports.createListing = async (req, res) => {
+
+    try {
+
+        const {
+            card_instance_id,
+            seller_user_id,
+            price
+        } = req.body;
+
+        await db.query(`
+            INSERT INTO marketplace_listing (
+                seller_user_id,
+                card_instance_id,
+                price,
+                status
+            )
+            VALUES ($1,$2,$3,'active')
+        `,[
+            seller_user_id,
+            card_instance_id,
+            price
+        ]);
+
+        res.json({
+            message: 'Carta messa all\'asta'
+        });
+
+    } catch(err){
+
+        res.status(500).json({
+            error: err.message
+        });
+    }
+};
