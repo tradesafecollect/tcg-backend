@@ -2,20 +2,38 @@ const express = require('express');
 const router = express.Router();
 
 const cardController = require('../controllers/cardController');
+
 const authMiddleware = require('../middleware/authMiddleware');
-const { getCard } = require('../controllers/cardController');
 
 const {
-    createCard
+    getCard,
+    createCard,
+    getUnassignedCards,
+    assignCardToUser
 } = require('../controllers/cardController');
 
 // 🎴 inventory utente
-router.get('/my-cards', authMiddleware, cardController.getMyCards);
-router.get('/my-collection', authMiddleware, cardController.getMyCollectionCards);
+router.get(
+    '/my-cards',
+    authMiddleware,
+    cardController.getMyCards
+);
 
-router.get('/history/:cardId', cardController.getCardHistory);
+router.get(
+    '/my-collection',
+    authMiddleware,
+    cardController.getMyCollectionCards
+);
 
-router.get("/cards/:id", getCard);
+router.get(
+    '/history/:cardId',
+    cardController.getCardHistory
+);
+
+router.get(
+    '/cards/:id',
+    getCard
+);
 
 router.post(
     '/cards',
