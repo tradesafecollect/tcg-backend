@@ -1,104 +1,181 @@
 const db = require('../config/database');
 
 exports.getBalance = async (req, res) => {
+
     try {
-        const { userId } = req.userId;
 
-        const [rows] = await db.query(
-            "SELECT balance, locked_balance FROM user_wallets WHERE user_id = ?",
-            [userId]
-        );
+        const userId = req.userId;
 
-        if (rows.length === 0) {
-            return res.status(404).json({ message: "Wallet not found" });
+        const result = await db.query(`
+            SELECT
+                balance,
+                locked_balance
+            FROM user_wallets
+            WHERE user_id = $1
+        `, [userId]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                message: "Wallet not found"
+            });
         }
 
-        res.json(rows[0]);
+        res.json(result.rows[0]);
 
     } catch (err) {
-        res.status(500).json({ error: err.message });
+
+        console.error(err);
+
+        res.status(500).json({
+            error: err.message
+        });
     }
 };
 
 exports.addMoney = async (req, res) => {
+
     try {
-        const { userId, amount } = req.body;
 
-        await db.query(
-            "UPDATE user_wallets SET balance = balance + ? WHERE user_id = ?",
-            [amount, userId]
-        );
+        const {
+            userId,
+            amount
+        } = req.body;
 
-        res.json({ message: "Money added" });
+        await db.query(`
+            UPDATE user_wallets
+            SET balance = balance + $1
+            WHERE user_id = $2
+        `, [
+            amount,
+            userId
+        ]);
+
+        res.json({
+            message: "Money added"
+        });
 
     } catch (err) {
-        res.status(500).json({ error: err.message });
+
+        console.error(err);
+
+        res.status(500).json({
+            error: err.message
+        });
     }
 };
 
 exports.deductMoney = async (req, res) => {
+
     try {
-        const { userId, amount } = req.body;
 
-        const [rows] = await db.query(
-            "SELECT balance FROM user_wallets WHERE user_id = ?",
-            [userId]
-        );
+        const {
+            userId,
+            amount
+        } = req.body;
 
-        if (!rows || rows.length === 0) {
-            return res.status(404).json({ message: "Wallet not found" });
+        const result = await db.query(`
+            SELECT balance
+            FROM user_wallets
+            WHERE user_id = $1
+        `, [userId]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                message: "Wallet not found"
+            });
         }
 
-        const balance = rows[0].balance;
+        const balance =
+            parseFloat(result.rows[0].balance);
 
         if (balance < amount) {
-            return res.status(400).json({ message: "Insufficient funds" });
+            return res.status(400).json({
+                message: "Insufficient funds"
+            });
         }
 
-        await db.query(
-            "UPDATE user_wallets SET balance = balance - ? WHERE user_id = ?",
-            [amount, userId]
-        );
+        await db.query(`
+            UPDATE user_wallets
+            SET balance = balance - $1
+            WHERE user_id = $2
+        `, [
+            amount,
+            userId
+        ]);
 
-        res.json({ message: "Money deducted" });
+        res.json({
+            message: "Money deducted"
+        });
 
     } catch (err) {
-        res.status(500).json({ error: err.message });
+
+        console.error(err);
+
+        res.status(500).json({
+            error: err.message
+        });
     }
 };
 
 exports.transferMoney = async (req, res) => {
+
     try {
-        const { fromUserId, toUserId, amount } = req.body;
 
-        const [senderRows] = await db.query(
-            "SELECT balance FROM user_wallets WHERE user_id = ?",
-            [fromUserId]
-        );
+        const {
+            fromUserId,
+            toUserId,
+            amount
+        } = req.body;
 
-        if (!senderRows || senderRows.length === 0) {
-            return res.status(404).json({ message: "Sender wallet not found" });
+        const senderResult = await db.query(`
+            SELECT balance
+            FROM user_wallets
+            WHERE user_id = $1
+        `, [fromUserId]);
+
+        if (senderResult.rows.length === 0) {
+            return res.status(404).json({
+                message: "Sender wallet not found"
+            });
         }
 
-        const senderBalance = senderRows[0].balance;
+        const senderBalance =
+            parseFloat(senderResult.rows[0].balance);
 
         if (senderBalance < amount) {
-            return res.status(400).json({ message: "Insufficient funds" });
+            return res.status(400).json({
+                message: "Insufficient funds"
+            });
         }
 
-        await db.query(
-            "UPDATE user_wallets SET balance = balance - ? WHERE user_id = ?",
-            [amount, fromUserId]
-        );
+        await db.query(`
+            UPDATE user_wallets
+            SET balance = balance - $1
+            WHERE user_id = $2
+        `, [
+            amount,
+            fromUserId
+        ]);
 
-        await db.query(
-            "UPDATE user_wallets SET balance = balance + ? WHERE user_id = ?",
-            [amount, toUserId]
-        );
+        await db.query(`
+            UPDATE user_wallets
+            SET balance = balance + $1
+            WHERE user_id = $2
+        `, [
+            amount,
+            toUserId
+        ]);
 
-        res.json({ message: "Transfer completed" });
+        res.json({
+            message: "Transfer completed"
+        });
 
     } catch (err) {
-        res.status(500).json({ error: err.message });
+
+        console.error(err);
+
+        res.status(500).json({
+            error: err.message
+        });
     }
 };
