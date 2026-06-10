@@ -29,6 +29,34 @@ exports.createBetaRequest = async (req, res) => {
             anni_collezionismo
         } = req.body;
 
+        // Controlla richiesta esistente
+        const existingRequest = await db.query(`
+            SELECT id
+            FROM beta_requests
+            WHERE email = $1
+        `, [email]);
+
+        if (existingRequest.rows.length > 0) {
+
+            return res.status(400).json({
+                error: 'Richiesta beta già inviata'
+            });
+        }
+
+        // Controlla utente già registrato
+        const existingUser = await db.query(`
+            SELECT id
+            FROM users
+            WHERE email = $1
+        `, [email]);
+
+        if (existingUser.rows.length > 0) {
+
+            return res.status(400).json({
+                error: 'Utente già registrato'
+            });
+        }
+
         const hashedPassword =
             await bcrypt.hash(password, 10);
 
@@ -45,13 +73,14 @@ exports.createBetaRequest = async (req, res) => {
                 citta,
                 cap,
                 referral,
-                anni_collezionismo
+                anni_collezionismo,
+                status
             )
             VALUES
             (
-                $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11
+                $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'pending'
             )
-        `,[
+        `, [
             username,
             email,
             hashedPassword,
@@ -87,7 +116,7 @@ exports.createBetaRequest = async (req, res) => {
             message: 'Richiesta inviata'
         });
 
-    } catch(err){
+    } catch (err) {
 
         console.error(err);
 
@@ -115,7 +144,9 @@ exports.getPendingRequests = async (req, res) => {
 
         res.json(requests.rows);
 
-    } catch(err){
+    } catch (err) {
+
+        console.error(err);
 
         res.status(500).json({
             error: err.message
@@ -141,7 +172,9 @@ exports.getAcceptedRequests = async (req, res) => {
 
         res.json(requests.rows);
 
-    } catch(err){
+    } catch (err) {
+
+        console.error(err);
 
         res.status(500).json({
             error: err.message
@@ -167,7 +200,9 @@ exports.getInvitedRequests = async (req, res) => {
 
         res.json(requests.rows);
 
-    } catch(err){
+    } catch (err) {
+
+        console.error(err);
 
         res.status(500).json({
             error: err.message
@@ -193,7 +228,9 @@ exports.getRejectedRequests = async (req, res) => {
 
         res.json(requests.rows);
 
-    } catch(err){
+    } catch (err) {
+
+        console.error(err);
 
         res.status(500).json({
             error: err.message
@@ -216,9 +253,9 @@ exports.acceptToWaitlist = async (req, res) => {
             SELECT *
             FROM beta_requests
             WHERE id = $1
-        `,[id]);
+        `, [id]);
 
-        if(request.rows.length === 0){
+        if (request.rows.length === 0) {
 
             return res.status(404).json({
                 error: 'Richiesta non trovata'
@@ -240,14 +277,16 @@ exports.acceptToWaitlist = async (req, res) => {
                 status = 'accepted',
                 waitlist_position = $1
             WHERE id = $2
-        `,[position,id]);
+        `, [position, id]);
 
         res.json({
             message: 'Utente inserito in waiting list',
             position
         });
 
-    } catch(err){
+    } catch (err) {
+
+        console.error(err);
 
         res.status(500).json({
             error: err.message
@@ -270,9 +309,9 @@ exports.inviteUser = async (req, res) => {
             SELECT *
             FROM beta_requests
             WHERE id = $1
-        `,[id]);
+        `, [id]);
 
-        if(request.rows.length === 0){
+        if (request.rows.length === 0) {
 
             return res.status(404).json({
                 error: 'Utente non trovato'
@@ -285,11 +324,13 @@ exports.inviteUser = async (req, res) => {
             SELECT id
             FROM users
             WHERE email = $1
-        `,[user.email]);
+        `, [user.email]);
 
-        if(exists.rows.length === 0){
+        let userId;
 
-            await db.query(`
+        if (exists.rows.length === 0) {
+
+            const newUser = await db.query(`
                 INSERT INTO users
                 (
                     username,
@@ -301,12 +342,34 @@ exports.inviteUser = async (req, res) => {
                 (
                     $1,$2,$3,$4
                 )
-            `,[
+                RETURNING id
+            `, [
                 user.username,
                 user.email,
                 user.password,
                 'user'
             ]);
+
+            userId = newUser.rows[0].id;
+
+            await db.query(`
+                INSERT INTO user_wallets
+                (
+                    user_id,
+                    balance,
+                    locked_balance
+                )
+                VALUES
+                (
+                    $1,
+                    0,
+                    0
+                )
+            `, [userId]);
+
+        } else {
+
+            userId = exists.rows[0].id;
         }
 
         await db.query(`
@@ -315,13 +378,16 @@ exports.inviteUser = async (req, res) => {
                 status = 'invited',
                 approved_at = NOW()
             WHERE id = $1
-        `,[id]);
+        `, [id]);
 
         res.json({
-            message: 'Utente invitato'
+            message: 'Utente invitato',
+            userId
         });
 
-    } catch(err){
+    } catch (err) {
+
+        console.error(err);
 
         res.status(500).json({
             error: err.message
@@ -344,13 +410,15 @@ exports.rejectBetaRequest = async (req, res) => {
             UPDATE beta_requests
             SET status = 'rejected'
             WHERE id = $1
-        `,[id]);
+        `, [id]);
 
         res.json({
             message: 'Richiesta rifiutata'
         });
 
-    } catch(err){
+    } catch (err) {
+
+        console.error(err);
 
         res.status(500).json({
             error: err.message
