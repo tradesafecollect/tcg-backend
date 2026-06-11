@@ -311,24 +311,74 @@ exports.assignCardToUser = async (req, res) => {
             card_id
         } = req.body;
 
+        const serialResult = await db.query(`
+            SELECT COALESCE(MAX(serial_number),0) + 1 AS next_serial
+            FROM card_instances
+        `);
+
+        const serial =
+            serialResult.rows[0].next_serial;
+
         await db.query(`
-            INSERT INTO user_cards (
-                user_id,
-                card_id
+            INSERT INTO card_instances
+            (
+                card_id,
+                owner_user_id,
+
+                serial_number,
+
+                level,
+                xp,
+                xp_level,
+                fusion_level,
+
+                season,
+
+                attack_bonus,
+                defense_bonus,
+                hp_bonus,
+                speed_bonus,
+
+                dms,
+
+                is_locked,
+                locked_in_tournament
             )
-            VALUES ($1, $2)
-        `, [
+            VALUES
+            (
+                $1,$2,
+
+                $3,
+
+                1,
+                0,
+                1,
+                0,
+
+                1,
+
+                0,
+                0,
+                0,
+                0,
+
+                false,
+
+                false,
+                false
+            )
+        `,[
+            card_id,
             user_id,
-            card_id
+            serial
         ]);
 
         res.json({
-            message: 'Carta assegnata con successo'
+            message: 'Carta assegnata',
+            serial
         });
 
-    } catch (err) {
-
-        console.error(err);
+    } catch(err){
 
         res.status(500).json({
             error: err.message
